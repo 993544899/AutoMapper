@@ -522,4 +522,40 @@ namespace AutoMapper.UnitTests.DynamicMapping
         }
     }
 
+    public class When_mapping_to_base_class_then_to_derived_class : NonValidatingSpecBase
+    {
+        protected override MapperConfiguration Configuration { get; } = new MapperConfiguration(cfg => { });
+
+        public class Source
+        {
+            public int X { get; set; }
+            public int Y { get; set; }
+        }
+
+        public class BaseDestination
+        {
+            public int X { get; set; }
+        }
+
+        public class DerivedDestination : BaseDestination
+        {
+            public int Y { get; set; }
+        }
+
+        [Fact]
+        public void Should_map_ok()
+        {
+            var source = new Source { X = 1, Y = 2 };
+
+            // Creates dynamic map for Source => BaseDestination
+            Mapper.Map<BaseDestination>(source);
+
+            DerivedDestination destination = null;
+            Action mapToDerivedDestination = () => destination = Mapper.Map<DerivedDestination>(source);
+
+            mapToDerivedDestination.ShouldNotThrow();
+            destination.X.ShouldBe(source.X);
+            destination.Y.ShouldBe(source.Y);
+        }
+    }
 }
